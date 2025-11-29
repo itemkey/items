@@ -1103,18 +1103,22 @@ body::after {
 }
 
 .home-preview-image {
+  position: relative;
   border-radius: 14px;
   overflow: hidden;
-  border: 1px solid #f0f0f0;
+  border: 1px solid #ededed;
+  background: #ffffff;      /* белый фон, PNG с белым фоном просто сольётся */
+  padding-top: 120%;        /* как product-image-wrapper, вертикальный кадр */
+}
 
-  /* рамка под вертикальное фото */
-  aspect-ratio: 3 / 4;
-
-  /* показать картинку целиком внутри рамки */
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: #f6f6f6; /* чтобы пустые поля были аккуратные */
+/* картинка внутри превью 1/1 */
+.home-preview-image img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;        /* как в карточках 1/1 */
+  display: block;
 }
 
 .home-preview-meta {
@@ -1634,8 +1638,10 @@ Not worn. Not welcomed. item-core.
 
     <!-- preview 1/1 -->
 <div class="home-preview-card" data-section-target="exclusivev" role="button" aria-label="open 1/1 wardrobe">
-  <div class="home-preview-image"
-       style="background-image: url('images/hELIOSTICE01.jpg');"></div>
+  <div class="home-preview-image">
+    <!-- сюда поставь ту же фотку, что и в карточке сумки -->
+    <img src="images/desshBAgg01_01.jpg" alt="item: desshBAgg01" />
+  </div>
   <div class="home-preview-meta">
     <span class="home-preview-eyebrow glitch-hover">private wardr0be</span>
     <div class="home-preview-title glitch-hover">1/1 section</div>
@@ -1647,6 +1653,7 @@ Not worn. Not welcomed. item-core.
     </div>
   </div>
 </div>
+
 
 </section>
 
