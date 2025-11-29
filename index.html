@@ -1,0 +1,2576 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>item???????????????????????</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --muted: #8a8a8a;
+      --border: #e5e5e5;
+      --accent: #111111;
+      --radius-lg: 18px;
+      --radius-sm: 10px;
+      --shadow-soft: 0 16px 45px rgba(0, 0, 0, 0.04);
+      --transition-fast: 0.18s ease-out;
+      --max-width: 1120px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ====== extra minimalist / glitch layer ====== */
+
+/* лёгкий "сканлайн" поверх идеально белого фона */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.02),
+    rgba(0, 0, 0, 0.02) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  opacity: 0.35;
+  mix-blend-mode: multiply;
+}
+
+/* ЖИВУЩИЙ, ДВИЖУЩИЙСЯ НОЙЗ */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -40px;              /* чуть вылезает за края, чтобы при сдвиге не было пустот */
+  pointer-events: none;
+  z-index: 0;
+
+  /* сама "шумная" текстура из точек */
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(0,0,0,0.32) 0, rgba(0,0,0,0.32) 0.7px, transparent 0.7px),
+    radial-gradient(circle at 3px 2px, rgba(0,0,0,0.20) 0, rgba(0,0,0,0.20) 0.9px, transparent 0.9px);
+  background-size: 4px 4px, 5px 5px;
+
+  mix-blend-mode: multiply;  /* чтобы не забивать контент чёрным, а именно "грязнить" фон */
+  opacity: 0.2;              /* если слишком жёстко — опусти до 0.4–0.5 */
+
+  /* анимация, из-за которой шум постоянно дрожит */
+  animation: noiseShift 0.25s steps(2) infinite;
+}
+
+@keyframes noiseShift {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(-3px, 2px); }
+  50%  { transform: translate(2px, -3px); }
+  75%  { transform: translate(3px, 3px); }
+  100% { transform: translate(0, 0); }
+}
+
+
+
+@keyframes filmgrain {
+    0% { filter: url(#grainy); }
+    100% { filter: url(#grainy); }
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: .55;
+  mix-blend-mode: multiply;
+  animation: filmgrain 0.4s steps(2) infinite;
+  pointer-events: none;
+}
+
+
+
+/* подчёркивание ссылок сверху в навигации — лёгкий глич-след */
+.nav-link::after {
+  content: "";
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: 3px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(0, 0, 0, 0.4),
+    transparent
+  );
+  opacity: 0;
+  transform: translateY(2px) scaleX(0.8);
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
+  pointer-events: none;
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+  opacity: 0.7;
+  transform: translateY(0) scaleX(1);
+}
+
+/* двойная "сбитая" рамка на карточках */
+.product-card,
+.home-preview-card {
+  position: relative;
+}
+
+.product-card::before,
+.home-preview-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px dashed rgba(0, 0, 0, 0.06);
+  transform: translate(3px, -3px);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.product-card:hover::before,
+.home-preview-card:hover::before {
+  opacity: 1;
+  transform: translate(1px, -1px);
+}
+
+/* блок контактов — более аккуратно и по центру */
+.product-contact {
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px dashed #e5e5e5;
+}
+
+.contact-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  text-align: center;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.contact-btn {
+  justify-content: center;
+}
+
+/* убираем стрелку ▼ с кнопки */
+.contact-btn::after {
+  content: "";
+}
+
+/* плавное открытие/закрытие списка контактов */
+/* контакт-лист — закрыт по умолчанию */
+.contact-list {
+  display: none;
+  margin-top: 10px;
+  background: #fafafa;
+  border: 1px solid #e5e5e5;
+  border-radius: 14px;
+  padding: 8px;
+  overflow: hidden;
+  opacity: 0;
+  max-height: 0;
+  transition:
+    max-height 0.22s ease-out,
+    opacity 0.2s ease-out;
+}
+
+/* когда открыт */
+.contact-list.open {
+  display: block;
+  opacity: 1;
+  max-height: 200px;
+}
+
+
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font-family: inherit;
+    }
+
+    /* =============== NAVBAR =============== */
+
+    .top-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(18px);
+      background: rgba(255, 255, 255, 0.92);
+      border-bottom: 1px solid rgba(229, 229, 229, 0.85);
+    }
+
+    .top-nav-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      min-width: 0;
+    }
+
+    .logo {
+      font-size: 18px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .logo span {
+      opacity: 0.5;
+      font-size: 11px;
+      letter-spacing: 0.24em;
+      display: block;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .nav-link {
+      position: relative;
+      padding: 6px 8px;
+      border-radius: 999px;
+      cursor: pointer;
+      color: var(--muted);
+      transition: color var(--transition-fast),
+        background var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .nav-link:hover {
+      color: var(--text);
+      background: rgba(0, 0, 0, 0.03);
+      transform: translateY(-1px);
+    }
+
+    .nav-link.active {
+      color: var(--text);
+      background: #f4f4f4;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .currency-selector {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--muted);
+      padding: 5px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #fafafa;
+    }
+
+    .currency-selector select {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding-right: 12px;
+      cursor: pointer;
+    }
+
+    .search-wrapper {
+      flex: 1;
+      max-width: 220px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 8px 30px 8px 12px;
+      font-size: 13px;
+      background: #fafafa;
+      outline: none;
+      transition: border-color var(--transition-fast),
+        background var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .search-input::placeholder {
+      color: #b0b0b0;
+    }
+
+    .search-input:focus {
+      background: #ffffff;
+      border-color: #c9c9c9;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.02);
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      color: #b0b0b0;
+      pointer-events: none;
+    }
+
+    @media (max-width: 720px) {
+      .top-nav-inner {
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
+      .nav-left {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .nav-links {
+        gap: 10px;
+        font-size: 12px;
+      }
+      .nav-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .search-wrapper {
+        max-width: none;
+      }
+    }
+
+    /* =============== LAYOUT =============== */
+
+    main {
+      max-width: var(--max-width);
+      margin: 24px auto 40px;
+      padding: 0 18px;
+    }
+
+    .page {
+      display: none;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .page.visible {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .page-header {
+      margin-bottom: 22px;
+    }
+
+    .page-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.26em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .page-title {
+      font-size: 24px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin: 0;
+    }
+
+    .page-sub {
+      margin-top: 8px;
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 420px;
+      line-height: 1.6;
+    }
+
+    /* =============== HOME =============== */
+
+    .hero {
+      border-radius: var(--radius-lg);
+      padding: 28px 26px 26px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-soft);
+      background: radial-gradient(
+          circle at top left,
+          rgba(0, 0, 0, 0.03),
+          transparent 48%
+        ),
+        #ffffff;
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+      gap: 32px;
+      align-items: center;
+    }
+
+    .hero-title {
+      font-size: 30px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin: 0 0 14px;
+    }
+
+    .hero-text {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 420px;
+      line-height: 1.7;
+    }
+
+    .hero-tags {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .hero-tag {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #ececec;
+      background: #fafafa;
+    }
+
+    .hero-right {
+      border-radius: var(--radius-lg);
+      border: 1px dashed #dedede;
+      background: #fafafa;
+      padding: 16px;
+      min-height: 160px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .hero-right h3 {
+      margin: 0 0 10px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #7c7c7c;
+    }
+
+    .hero-right p {
+      margin: 0 0 6px;
+      line-height: 1.6;
+    }
+
+    .hero-hint {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    /* =============== SHOP =============== */
+
+    .shop-layout {
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: #fdfdfd;
+      padding: 18px 18px 22px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .shop-top-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .shop-top-left {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .shop-top-left span:first-child {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 11px;
+    }
+
+    .shop-categories {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .shop-tab {
+      border: 1px solid #e4e4e4;
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: #fafafa;
+      cursor: pointer;
+      color: var(--muted);
+      transition: background var(--transition-fast), color var(--transition-fast),
+        transform var(--transition-fast), box-shadow var(--transition-fast);
+    }
+
+    .shop-tab:hover {
+      background: #f3f3f3;
+      color: var(--text);
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+    }
+
+    .shop-tab.active {
+      background: #111111;
+      color: #ffffff;
+      border-color: #111111;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16);
+    }
+
+    .category-content {
+      margin-top: 8px;
+      display: none;
+    }
+
+    .category-content.active {
+      display: block;
+    }
+
+    .category-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+
+    .category-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .category-meta {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .category-description {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 16px;
+      max-width: 420px;
+      line-height: 1.6;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    @media (max-width: 1024px) {
+      .product-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 768px) {
+      .product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 520px) {
+      .product-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .product-card {
+      border-radius: var(--radius-sm);
+      border: 1px solid #ededed;
+      background: #ffffff;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform var(--transition-fast),
+        box-shadow var(--transition-fast), border-color var(--transition-fast);
+    }
+
+.product-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(0,0,0,0.06);
+  border-color: #dcdcdc;
+}
+
+    .product-image-wrapper {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #f6f6f6;
+      padding-top: 120%;
+      border: 1px solid #f0f0f0;
+    }
+
+    .product-image-wrapper img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .image-placeholder-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #b1b1b1;
+      text-align: center;
+      padding: 8px;
+    }
+
+    .product-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 2px;
+
+  /* растягиваем инфо-блок, чтобы низ всегда был на одном уровне */
+  flex: 1;
+}
+
+    .product-name {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  line-height: 1.3;
+
+  /* фиксированная высота под 2 строки названия */
+  min-height: 2.6em; /* можно поиграться: 2.4em / 3em */
+}
+
+ .product-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  /* всё, что сверху – название/теги,
+     это – прижимаем к низу */
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+/* общий вид цены / статуса */
+.product-price {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+/* обычная цена */
+.product-price .price-value {
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #111;
+  font-size: 10px;
+  font-weight: 500;
+  background: #fff;
+}
+
+.product-price .price-currency {
+  font-size: 10px;
+  opacity: .55;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+/* именно out of stock (у тебя он внутри div) */
+.product-price > div {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #111111;
+  color: #ffffff;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  border: 1px solid #111111;
+}
+
+
+.product-tag {
+  border: 1px solid #e5e5e5;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: #777;
+  background: #fafafa;
+}
+
+.product-price {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.product-price .status-oos {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: #111;
+  color: white;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  opacity: 0.75;
+  border: 1px solid #111;
+  cursor: default;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+    /* =============== OTHER PAGES =============== */
+
+    .placeholder-box {
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 26px;
+      background: #fafafa;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .placeholder-label {
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      font-size: 11px;
+      margin-bottom: 10px;
+    }
+
+    /* =============== EXCLUSIVE GRID =============== */
+
+    .exclusive-layout {
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      background: #fdfdfd;
+      padding: 20px 18px 24px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .exclusive-header-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+
+    .exclusive-count {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    /* =============== MODAL =============== */
+
+    .product-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.32);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 80;
+
+  /* важно: если модалка выше экрана — скроллим фон */
+  overflow-y: auto;
+}
+
+.product-modal {
+  width: 100%;
+  max-width: 720px;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+  padding: 18px 20px 18px;
+
+  /* НЕ ДАЁМ ВЫРАСТИ ВЫШЕ ОКНА БРАУЗЕРА */
+  max-height: calc(100vh - 40px);
+  overflow-y: auto; /* внутри модалки появляется скролл */
+}
+
+/* чтобы на совсем маленьких экранах не было тесно */
+@media (max-width: 600px) {
+  .product-modal {
+    border-radius: 16px;
+    padding: 14px 14px 16px;
+  }
+}
+
+    .product-modal-backdrop.visible {
+      display: flex;
+    }
+
+    .product-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .product-modal-title {
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .product-modal-close {
+      border: none;
+      background: #f4f4f4;
+      border-radius: 999px;
+      width: 26px;
+      height: 26px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    .product-modal-tag {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .product-modal-price {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1px solid #111111;
+}
+
+    .product-modal-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    /* ГАЛЕРЕЯ В МОДАЛКЕ */
+    .product-modal-gallery {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .product-modal-main {
+      border-radius: 16px;
+      border: 1px solid #e3e3e3;
+      background: #fafafa;
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .product-modal-main img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .product-modal-main-placeholder {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      padding: 20px;
+    }
+
+    .product-modal-thumbs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .product-modal-thumb {
+      border-radius: 10px;
+      border: 1px solid #e0e0e0;
+      background: #f6f6f6;
+      width: 60px;
+      height: 60px;
+      padding: 0;
+      overflow: hidden;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: border-color var(--transition-fast),
+        opacity var(--transition-fast), transform var(--transition-fast),
+        box-shadow var(--transition-fast);
+    }
+
+    .product-modal-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .product-modal-thumb:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .product-modal-thumb.active {
+      border-color: #111111;
+      opacity: 1;
+      box-shadow: 0 0 0 1px #111111;
+    }
+
+    .product-modal-textblock {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .product-modal-textblock strong {
+      color: var(--text);
+    }
+
+    .product-modal-list {
+      margin: 10px 0 0;
+      padding-left: 16px;
+      font-size: 12px;
+    }
+
+    .product-modal-list li {
+      margin-bottom: 4px;
+    }
+
+    @media (max-width: 700px) {
+      .product-modal-body {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    /* =============== FOOTER =============== */
+
+    footer {
+      max-width: var(--max-width);
+      margin: 0 auto 26px;
+      padding: 0 18px;
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      border-top: 1px solid #f2f2f2;
+      padding-top: 14px;
+    }
+
+    @media (max-width: 600px) {
+      footer {
+        flex-direction: column;
+      }
+    }
+
+
+
+
+    /* =============== HOME PREVIEW GRID =============== */
+
+.home-preview-grid {
+  margin-top: 22px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.home-preview-card {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: #fafafa;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast),
+    background var(--transition-fast);
+}
+
+.home-preview-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.12);
+  border-color: #d4d4d4;
+  background: #ffffff;
+}
+
+.home-preview-image {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+
+  /* рамка под вертикальное фото */
+  aspect-ratio: 3 / 4;
+
+  /* показать картинку целиком внутри рамки */
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #f6f6f6; /* чтобы пустые поля были аккуратные */
+}
+
+.home-preview-meta {
+  padding: 6px 2px 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.home-preview-eyebrow {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+}
+
+.home-preview-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+}
+
+.home-preview-sub {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* адаптация под мобилы */
+@media (max-width: 900px) {
+  .home-preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .home-preview-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Гличи */
+.glitch-hover {
+  position: relative;
+  cursor: crosshair;
+  transition: color 0.12s ease-out, opacity 0.12s ease-out;
+}
+
+.glitch-hover:hover {
+  opacity: 0.85;
+}
+
+/* каждая буква, по которой ездим мышкой */
+.glitch-char {
+  display: inline-block;
+  cursor: crosshair;
+  transition: transform 0.08s ease-out;
+}
+
+.glitch-char:hover {
+  transform: translateY(-1px);
+}
+
+/* ====== glitch карточек при наведении ====== */
+
+/* немного усилим базовый ховер */
+.product-card {
+  position: relative;
+  overflow: hidden; /* чтобы глич не вылезал за рамку */
+  transition:
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    border-color var(--transition-fast),
+    filter 0.16s ease-out;
+}
+
+.product-card:hover {
+  transform: translateY(-4px) rotate(-0.3deg) scale(1.01);
+  box-shadow: 0 18px 40px rgb(255, 255, 255);
+  border-color: #000000;
+  filter: contrast(1.05) saturate(1.04);
+}
+
+/* ГЛИЧ-оверлей: RGB-сдвиг + рваные полосы */
+.product-card::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+  border-radius: inherit;
+  mix-blend-mode: screen;
+  opacity: 0;
+
+  /* теперь глич по всей карточке */
+  background:
+    /* лёгкий rgb-сдвиг на всю площадь */
+    linear-gradient(
+      90deg,
+      rgb(0, 0, 0),
+      rgb(255, 255, 255)
+    ),
+    /* рваные горизонтальные полосы по всей ширине */
+    repeating-linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.2) 0px,
+      rgba(255, 255, 255, 0.0) 2px,
+      rgba(0, 0, 0, 0.4) 4px,
+      rgba(0, 0, 0, 0.0) 6px
+    );
+
+  transform: translate3d(0, 0, 0);
+}
+
+.product-card:hover::after {
+  opacity: 1;
+  animation: card-glitch 0.45s steps(3) infinite;
+}
+
+/* рваные полосы, которые “дергаются” */
+@keyframes card-glitch {
+  0% {
+    clip-path: inset(0 0 65% 0);
+    transform: translate3d(0, 0, 0);
+  }
+  20% {
+    clip-path: inset(35% 0 20% 0);
+    transform: translate3d(-2px, -1px, 0);
+  }
+  40% {
+    clip-path: inset(10% 0 40% 0);
+    transform: translate3d(2px, 1px, 0);
+  }
+  60% {
+    clip-path: inset(60% 0 5% 0);
+    transform: translate3d(-1px, 2px, 0);
+  }
+  80% {
+    clip-path: inset(15% 0 30% 0);
+    transform: translate3d(1px, -2px, 0);
+  }
+  100% {
+    clip-path: inset(0 0 65% 0);
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+
+
+.product-contact {
+  margin-top: 20px;
+  padding-top: 14px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.contact-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.contact-btn {
+  width: 100%;
+  padding: 9px 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  background: #ffffff;
+  color: #111111;
+  border-radius: 999px;
+  border: 1px solid #e2e2e2;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition:
+    background var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.contact-btn::after {
+  content: "▼";
+  font-size: 9px;
+  opacity: 0.6;
+}
+
+.contact-btn:hover {
+  background: #f7f7f7;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
+  border-color: #d8d8d8;
+}
+
+.contact-list {
+  display: none;
+  margin-top: 10px;
+  background: #fafafa;
+  border: 1px solid #e5e5e5;
+  border-radius: 14px;
+  padding: 8px;
+}
+
+.contact-item {
+  width: 100%;
+  padding: 8px 10px;
+  text-align: left; 
+  background: #ffffff;
+  border: 1px solid #e7e7e7;
+  border-radius: 11px;
+  margin-bottom: 6px;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition:
+    background var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast),
+    border-color var(--transition-fast);
+}
+
+.contact-item:last-child {
+  margin-bottom: 0;
+}
+
+.contact-item-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.contact-copy-btn {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px dashed #d0d0d0;
+  background: rgba(248, 248, 248, 0.95);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.contact-copy-btn:hover {
+  background: #000000;
+  color: #ffffff;
+  border-color: #000000;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.contact-copy-btn.copied {
+  background: #000000;
+  color: #ffffff;
+  border-style: solid;
+}
+
+
+.contact-item-main {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  
+}
+
+.contact-item-arrow {
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.contact-item-sub {
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.contact-item:hover {
+  background: #f6f6f6;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03);
+  transform: translateY(-1px);
+  border-color: #dcdcdc;
+}
+
+
+
+.nav-telegram-btn {
+  position: relative;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  background: #fafafa;
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition:
+    background var(--transition-fast),
+    border-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast),
+    color var(--transition-fast);
+}
+
+.nav-telegram-btn span {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.nav-telegram-btn:hover {
+  background: #111111;
+  color: #ffffff;
+  border-color: #111111;
+  transform: translateY(-1px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+}
+
+/* лёгкий “глич-сдвиг” тени */
+.nav-telegram-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 1px solid rgba(0, 0, 0, 0.22);
+  transform: translate(2px, -2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.nav-telegram-btn:hover::after {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+/* адаптация на мобиле: чтобы не ломало сетку */
+@media (max-width: 720px) {
+  .nav-right {
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+
+
+
+
+
+
+
+  </style>
+</head>
+<body>
+  <!-- =============== NAVBAR =============== -->
+  <header class="top-nav">
+    <div class="top-nav-inner">
+      <div class="nav-left">
+        <div class="logo">
+          ITEMS
+          <span class="glitch-hover">?</span>
+        </div>
+        <nav class="nav-links">
+          
+          <a class="nav-link active glitch-hover" data-section="home">home</a>
+          <!--
+          <a class="nav-link" data-section="shop">shop</a>
+          <a class="nav-link" data-section="look">look</a> -->
+          <a class="nav-link glitch-hover" data-section="exclusivev">1/1</a>
+        </nav>
+      </div>
+
+      <div class="nav-right">
+  <div class="currency-selector">
+    <span>price</span>
+    <select id="currency-select">
+      <option value="RUB">RUB</option>
+      <option value="BYN">BYN</option>
+      <option value="USD">USD</option>
+      <option value="EUR">EUR</option>
+    </select>
+  </div>
+
+  <div class="search-wrapper">
+    <input
+      id="search-input"
+      type="search"
+      class="search-input"
+      placeholder="Search by items"
+      autocomplete="off"
+    />
+    <span class="search-icon">⌕</span>
+  </div>
+
+  <!-- telegram channel button -->
+  <a
+    href="https://t.me/dizze_design"
+    class="nav-telegram-btn"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    tg//
+    <span class = "glitch-hover" >channel</span>
+  </a>
+</div>
+    </div>
+  </header>
+
+  <!-- =============== MAIN =============== -->
+  <main>
+    <!-- HOME -->
+    <section id="home" class="page visible">
+  <div class="page-header">
+    <!-- <div class="page-eyebrow">online showcase</div> -->
+    <h1 class="page-title glitch-hover">ITEM MANUFACTURE</h1>
+    <p class="page-sub glitch-hover">
+      u’ve entered "autor" ZONE;items are forged in unknown zones, by unknown forces, following unknown intentions.Every accessible item in this wardrobe may be bought*
+    </p>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div>
+      <h2 class="hero-title glitch-hover">we?</h2>
+      <p class="hero-text glitch-hover">
+        We spre02-ad t r a g s for <strong>creatures that “people”</strong> 0202–do not become.
+Not worn. Not welcomed. item-core.
+      </p>
+      <p class="hero-text glitch-hover">current_distribution-CIS_ONLY</p>
+      
+
+      <!-- <div class="hero-tags">
+        <span class="hero-tag">archive</span>
+        <span class="hero-tag">reworked</span>
+        <span class="hero-tag">1/1 only</span>
+      </div> -->
+    </div>
+
+    <div class="hero-right">
+      <h3 class="glitch-hover">navigation</h3>
+      <p class="glitch-hover">
+        <!-- home — вход / ориентация.<br />
+        shop — регулярные релизы.<br />
+        look — собранные луки.<br /> -->
+        1/1 — "AUTHOR"_WARDROBE.LOG
+      </p>
+      <p class="glitch-hover">        More sections hatch soon-?-?-More sections hatch soon-?-?--?-?-More sections hatch soon-?-?-More sections hatch soon-?-?-More sections hatch soon-?-?--?-?-More sections hatch soon-?-?-More sections hatch soon
+</p>
+      <p class="hero-hint">
+        ?.
+      </p>
+    </div>
+  </div>
+
+  <!-- PREVIEW СЕТКА СНИЗУ ГЛАВНОГО ЭКРАНА -->
+  <div class="home-preview-grid">
+    <!-- preview SHOP -->
+    <!-- <div class="home-preview-card" data-section-target="shop">
+      <div class="home-preview-image"
+           style="background-image: url('images/desshBAgg01_01.jpg');"></div>
+      <div class="home-preview-meta">
+        <span class="home-preview-eyebrow">storefront</span>
+        <div class="home-preview-title">shop</div>
+        <div class="home-preview-sub">
+          базовые дропы, сумки, верх, деним. всё, что не 1/1.
+        </div>
+      </div>
+    </div> -->
+
+    <!-- preview LOOK -->
+    <!-- <div class="home-preview-card" data-section-target="look">
+      <div class="home-preview-image"
+           style="background-image: url('images/DRK-SKRT_01.jpg');"></div>
+      <div class="home-preview-meta">
+        <span class="home-preview-eyebrow">styling</span>
+        <div class="home-preview-title">look</div>
+        <div class="home-preview-sub">
+          собранные комплекты, как носить тряпки из проекта вместе.
+        </div>
+      </div>
+    </div> -->
+
+    <!-- preview 1/1 -->
+    <div class="home-preview-card" data-section-target="exclusivev">
+      <div class="home-preview-image"
+           style="background-image: url('images/hELIOSTICE01.jpg');"></div>
+      <div class="home-preview-meta">
+        <span class="home-preview-eyebrow glitch-hover">private wardr0be</span>
+        <div class="home-preview-title glitch-hover">1/1</div>
+        <div class="home-preview-sub glitch-hover">
+          Private Wardrobe_01! --item = “one-copy organism”.Available units = purchasable. no doubles, no re-runs, 
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+    <!-- SHOP
+    <section id="shop" class="page">
+      <div class="page-header">
+        <div class="page-eyebrow">storefront</div>
+        <h1 class="page-title">Shop</h1>
+        <p class="page-sub">
+          Категории под разные типы вещей. Карточки сейчас реализованы только
+          в разделе <strong>Exclusivev</strong>, но при желании можно скопировать
+          оттуда структуру и вставить сюда.
+        </p>
+      </div>
+
+      <div class="shop-layout">
+        <div class="shop-top-row">
+          <div class="shop-top-left">
+            <span>categories</span>
+            <span>Текстовые заглушки под будущие разделы магазина.</span>
+          </div>
+          <div class="shop-categories">
+            <button class="shop-tab active" data-category="outerwear">
+              outerwear
+            </button>
+            <button class="shop-tab" data-category="jeans">
+              jeans
+            </button>
+            <button class="shop-tab" data-category="headwear">
+              headwear
+            </button>
+            <button class="shop-tab" data-category="bag">
+              bag
+            </button>
+            <button class="shop-tab" data-category="accessories">
+              accessories
+            </button>
+          </div>
+        </div>
+
+        Категории-заглушки
+        <div class="category-content active" data-category-block="outerwear">
+          <div class="category-header-line">
+            <div class="category-title">outerwear</div>
+            <div class="category-meta">jackets · coats · shells</div>
+          </div>
+          <p class="category-description">
+            Здесь будут куртки, пальто, пуховики и другая верхняя одежда.
+            Можно скопировать карточки из раздела Exclusivev и вставить сюда.
+          </p>
+        </div>
+
+        <div class="category-content" data-category-block="jeans">
+          <div class="category-header-line">
+            <div class="category-title">jeans</div>
+            <div class="category-meta">denim · wide · straight</div>
+          </div>
+          <p class="category-description">
+            Страница для денима: классические, широкие, прямые, варёные, raw.
+          </p>
+        </div>
+
+        <div class="category-content" data-category-block="headwear">
+          <div class="category-header-line">
+            <div class="category-title">headwear</div>
+            <div class="category-meta">caps · beanies · balaclava</div>
+          </div>
+          <p class="category-description">
+            Любой головной убор бренда — от бейсболок до балаклав.
+          </p>
+        </div>
+
+        <div class="category-content" data-category-block="bag">
+          <div class="category-header-line">
+            <div class="category-title">bag</div>
+            <div class="category-meta">tote · shoulder · mini</div>
+          </div>
+          <p class="category-description">
+            Сумки и баулы: шопперы, кросс-боди, мини-сумки для телефона.
+          </p>
+        </div>
+
+        <div class="category-content" data-category-block="accessories">
+          <div class="category-header-line">
+            <div class="category-title">accessories</div>
+            <div class="category-meta">belts · jewelry · details</div>
+          </div>
+          <p class="category-description">
+            Всё, что дополняет образ: ремни, украшения, мелкие детали.
+          </p>
+        </div>
+      </div>
+    </section>  -->
+
+    <!-- LOOK 
+    <section id="look" class="page">
+      <div class="page-header">
+        <div class="page-eyebrow">styling</div>
+        <h1 class="page-title">Look</h1>
+        <p class="page-sub">
+          Описание краткое для главы с луками
+        </p>
+      </div>
+      <div class="placeholder-box">
+        <div class="placeholder-label">lookbook</div>
+        <p>
+          Тут будут блоки с луками
+        </p>
+        <p>
+          чета можно описать тут доп
+        </p>
+      </div>
+    </section>
+
+
+    -->
+
+    <!-- EXCLUSIVEV -->
+    <section id="exclusivev" class="page">
+      <div class="page-header">
+        <div class="page-eyebrow">items:</div>
+        <h1 class="page-title glitch-hover">1/1</h1>
+        <p class="page-sub glitch-hover">
+            Private Wardrobe_01! --item = “one-copy organism”.Available units = purchasable. no doubles, no re-runs,
+        </p>
+      </div>
+
+      <div class="exclusive-layout">
+        <div class="exclusive-header-line">
+          <div class="category-title glitch-hover">al itemz 1/1</div>
+          <div class="exclusive-count">
+            <span id="exclusive-count">06</span> items
+          </div>
+        </div>
+        <p class="category-description">
+          01010101
+        </p>
+
+        <div class="product-grid">
+          <!-- ВАЖНО: поменяй data-images на свои пути к фоткам -->
+
+          <!-- card -->
+          <article
+            class="product-card"
+            data-name="My lil’ desert-shrug baggo."
+            data-detail="FOR_KEY_ONLY"
+            data-extra="project: dizze"
+            data-images='["images/desshBAgg01_01.jpg","images/desshBAgg01_02.jpg","images/desshBAgg01_03.jpg","images/desshBAgg01_04.jpg","images/desshBAgg01_05.jpg","images/desshBAgg01_06.jpg","images/desshBAgg01_07.jpg"]'
+          >
+            <div class="product-image-wrapper">
+             <img src="images/desshBAgg01_01.jpg" alt="desshBAgg01  " />
+              <div class="image-placeholder-text">
+                 <br /> 
+              </div>
+            </div>
+            <div class="product-info">
+              <div class="product-name">item: desshBAgg01</div>
+              <div class="product-meta-row">
+                <span class="product-tag">bag</span>
+                <span class="product-price">
+                  <span
+                    class="price-value"
+                    data-base-price="5787"
+                  ></span>
+                  <span class="price-currency"></span>
+                </span>
+              </div>
+            </div>
+          </article>
+
+          <!-- card -->
+          <article
+            class="product-card"
+            data-name="item: hELIOSTIC1 long"
+            data-detail="the “hELIOSTICE long sleeve [mk.I]” crafted from a lightweight 92% cotton / 8% elastane blend (180 g/m²), engineered for enhanced breathability and summer-ready comfort. the fabric maintains a soft, flexible hand-feel while holding its structure, allowing the piece to adapt to the wearer’s movement without losing form.
+
+the long sleeve features a hand-applied deep-red radial applique, forming a raw, expressive emblem across the front panel. each segment is individually cut and fixed onto the base layer, creating a subtle 3D relief and giving the garment a crafted, almost ritualistic character. tonal aging marks along the sleeves introduce a naturally distressed visual language, making every piece visually singular.
+
+fit is shown in size L (48–50), offering a relaxed silhouette that drapes naturally and remains comfortable in warm weather. the garment is designed as a functional summer layer—lightweight enough for heat, yet substantial enough to serve as a standalone statement piece.
+every long sleeve carries its own presence: understated, handcrafted, and unmistakably bold.
+"
+            data-extra="project: dizze"
+            data-images='["images/hELIOSTICE01.jpg","images/hELIOSTICE02.jpg","images/hELIOSTICE03.jpg"]'
+          >
+            <div class="product-image-wrapper">
+              <img src="images/hELIOSTICE01.jpg" alt="hELIOSTIC1" />
+              <div class="image-placeholder-text">
+              </div>
+            </div>
+            <div class="product-info">
+              <div class="product-name">item: hELIOSTIC1 long</div>
+              <div class="product-meta-row">
+                <span class="product-tag">outerwear</span>
+                <span class="product-price">
+                  <div class="status-oos">out of stock</div>
+                  <span class="price-currency"></span>
+                </span>
+              </div>
+            </div>
+          </article>
+
+          <!-- card -->
+          <article
+            class="product-card"
+            data-name="item: d3s3rt bal@klava_Project'dizze"
+            data-detail="Winter_Balaclava // Cold_Unit.Dune-wasteland aesthetics; frost-compatible"
+            data-extra="project: dizze"
+            data-images='["images/balaclava01_01.jpg","images/balaclava01_02.jpg"]'
+          >
+            <div class="product-image-wrapper">
+             <img src="images/balaclava01_01.jpg" alt="balaclava" />
+              <div class="image-placeholder-text"> 
+                <br />
+              </div>
+            </div>
+            <div class="product-info">
+              <div class="product-name">item: d3s3rt bal@klava_Project'dizze</div>
+              <div class="product-meta-row">
+                <span class="product-tag">headwear</span>
+                <span class="product-price">
+                  <div class="status-oos">out of stock</DIV>
+                  <span class="price-currency"></span>
+                </span>
+              </div>
+            </div>
+          </article>
+
+
+          <!-- card -->
+          <article
+            class="product-card"
+            data-name="item: DRK–SKRT_Project'dizze"
+            data-detail="Sk!rt??????? maybe byt sometimes/ M-SSIZE"
+            data-extra="project: dizze"
+            data-images='["images/DRK-SKRT_01.jpg","images/DRK-SKRT_02.jpg"]'
+          >
+            <div class="product-image-wrapper">
+              <img src="images/DRK-SKRT_01.jpg" alt="Soft Tote / 03" />
+              <div class="image-placeholder-text">
+                <!-- bag<br />item: DRK–SKRT_Project'dizze -->
+              </div>
+            </div>
+            <div class="product-info">
+              <div class="product-name">item: DRK–SKRT_Project'dizze</div>
+              <div class="product-meta-row">
+                <span class="product-tag">outerwear</span>
+                <span class="product-price">
+                  <div class="status-oos">out of stock</DIV>
+                  <span class="price-currency"></span>
+                </span>
+              </div>
+            </div>
+          </article>
+
+          <!-- card -->
+          <article
+            class="product-card"
+            data-name="item: GLMR-EMPRESS-SKRT_Project'dizze"
+            data-detail="EMPRESS_SKIRT // society_rejected // memory_erased
+Size:M — additional parameters: ignored."
+            data-extra="project: dizze"
+            data-images='["images/GLMR-EMPRESS_SKRT_01.jpg","images/GLMR-EMPRESS_SKRT_02.jpg"]'
+          >
+            <div class="product-image-wrapper">
+              <img src="images/GLMR-EMPRESS_SKRT_01.jpg" alt="Silver Chain / 12" />
+              <div class="image-placeholder-text">
+                <!-- accessories<br />Silver Chain -->
+              </div>
+            </div>
+            <div class="product-info">
+              <div class="product-name">item: GLMR-EMPRESS-SKRT_Project'dizze</div>
+              <div class="product-meta-row">
+                <span class="product-tag">outerwear</span>
+                <span class="product-price">
+                  <DIV class="status-oos">out of stock</DIV>
+                  <span class="price-currency"></span>
+                </span>
+              </div>
+            </div>
+          </article>
+
+          <!-- card -->
+          <!-- <article
+            class="product-card"
+            data-name="Puffer Jacket / 09"
+            data-detail="Короткий пуховик с объёмным силуэтом и лаконичным дизайном. Без лишних деталей, только функциональность."
+            data-extra="Тёплый, но визуально аккуратный. Сочетается с джоггерами, денимом и широкими брюками."
+            data-images='["images/puffer09_1.jpg","images/puffer09_2.jpg"]'
+          >
+            <div class="product-image-wrapper">
+              <img src="images/puffer09_1.jpg" alt="Puffer Jacket / 09" /> -->
+              <!-- <div class="image-placeholder-text">
+                outerwear<br />Puffer / 09
+              </div>
+            </div>
+            <div class="product-info">
+              <div class="product-name">Puffer Jacket / 09</div>
+              <div class="product-meta-row">
+                <span class="product-tag">outerwear</span>
+                <span class="product-price">
+                  <span
+                    class="price-value"
+                    data-base-price="19800"
+                  ></span>
+                  <span class="price-currency"></span>
+                </span>
+              </div>
+            </div>
+          </article> -->
+
+
+
+          
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- =============== MODAL (детальная карточка с галереей) =============== -->
+  <div
+    id="product-modal-backdrop"
+    class="product-modal-backdrop"
+    aria-hidden="true"
+  >
+    <div class="product-modal" role="dialog" aria-modal="true">
+      <div class="product-modal-header">
+        <div>
+          <div class="product-modal-tag" id="modal-tag"></div>
+          <div class="product-modal-title" id="modal-title"></div>
+        </div>
+        <button
+          class="product-modal-close"
+          type="button"
+          id="modal-close-btn"
+          aria-label="Закрыть"
+        >
+          ×
+        </button>
+      </div>
+      <div class="product-modal-price" id="modal-price"></div>
+      <div class="product-modal-body">
+
+        <div class="product-modal-gallery">
+          <div class="product-modal-main">
+            <img id="modal-main-image" alt="" />
+            <div
+              class="product-modal-main-placeholder"
+              id="modal-main-placeholder"
+            >
+              Тут может быть крупное фото вещи<br />замени этот блок на
+              изображение, если нужно
+            </div>
+          </div>
+          <div class="product-modal-thumbs" id="modal-thumbs"></div>
+        </div>
+        <div class="product-modal-textblock">
+          <p id="modal-description"></p>
+          <ul class="product-modal-list" id="modal-extra-list"></ul>
+        </div>
+      </div>
+<!-- КОНТАКТЫ -->
+            <!-- КОНТАКТЫ -->
+        <div class="product-contact">
+          <div class="contact-label">contact for purchase</div>
+
+          <button class="contact-btn" id="contact-open">
+            open channels
+          </button>
+
+          <div class="contact-list" id="contact-list">
+  <!-- TELEGRAM -->
+  <button
+    class="contact-item"
+    id="contact-tg"
+    data-username="item_mngr"
+  >
+    <div class="contact-item-main-row">
+      <span class="contact-item-main">telegram</span>
+
+      <span
+        class="contact-copy-btn"
+        data-copy="@item_mngr"
+        role="button"
+        tabindex="0"
+      >
+        copy
+      </span>
+    </div>
+    <span class="contact-item-sub">@item_mngr</span>
+  </button>
+
+  <!-- MAIL -->
+  <button
+    class="contact-item"
+    id="contact-mail"
+    data-email="124@gmail.com"
+  >
+    <div class="contact-item-main-row">
+      <span class="contact-item-main">mail</span>
+
+      <span
+        class="contact-copy-btn"
+        data-copy="124@gmail.com"
+        role="button"
+        tabindex="0"
+      >
+        copy
+      </span>
+    </div>
+    <span class="contact-item-sub">124@gmail.com</span>
+  </button>
+</div>
+
+  </div>
+
+    </div>
+  </div>
+
+  <!-- =============== FOOTER =============== -->
+  <footer>
+    <span>© <span id="year"></span> items</span>
+    <span>onlineonlinestorage</span>
+  </footer>
+
+  <!-- =============== SCRIPTS =============== -->
+  <script>
+
+
+// КОНТАКТЫ
+const contactOpen = document.getElementById("contact-open");
+const contactList = document.getElementById("contact-list");
+
+const tgBtn = document.getElementById("contact-tg");
+const mailBtn = document.getElementById("contact-mail");
+
+const copyButtons = document.querySelectorAll(".contact-copy-btn");
+
+function copyToClipboard(text) {
+  if (!text) return;
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).catch((err) => {
+      console.warn("clipboard error", err);
+    });
+  } else {
+    // запасной вариант
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try {
+      document.execCommand("copy");
+    } catch (e) {
+      console.warn("execCommand copy error", e);
+    }
+    document.body.removeChild(textarea);
+  }
+}
+
+copyButtons.forEach((btn) => {
+  const originalLabel = btn.textContent.trim();
+
+  function handleCopyClick(e) {
+    e.stopPropagation(); // чтобы не срабатывал клик по contact-item
+    e.preventDefault();
+
+    let text = btn.dataset.copy || "";
+    const parent = btn.closest(".contact-item");
+
+    if (!text && parent) {
+      if (parent.dataset.username) {
+        const uname = parent.dataset.username.trim();
+        text = uname.startsWith("@") ? uname : "@" + uname;
+      } else if (parent.dataset.email) {
+        text = parent.dataset.email.trim();
+      } else {
+        const sub = parent.querySelector(".contact-item-sub");
+        if (sub) text = sub.textContent.trim();
+      }
+    }
+
+    if (!text) return;
+
+    copyToClipboard(text);
+
+    btn.textContent = "copied";
+    btn.classList.add("copied");
+
+    setTimeout(() => {
+      btn.textContent = originalLabel;
+      btn.classList.remove("copied");
+    }, 1400);
+  }
+
+  btn.addEventListener("click", handleCopyClick);
+  btn.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      handleCopyClick(e);
+    }
+  });
+});
+
+
+// Показать / скрыть контакты
+if (contactOpen && contactList) {
+  contactOpen.addEventListener("click", () => {
+    contactList.classList.toggle("open");
+  });
+}
+
+// Telegram
+if (tgBtn) {
+  tgBtn.addEventListener("click", () => {
+    const username = tgBtn.dataset.username;
+    if (!username) return;
+    window.open("https://t.me/" + username, "_blank");
+  });
+}
+
+// Email
+if (mailBtn) {
+  mailBtn.addEventListener("click", () => {
+    const email = mailBtn.dataset.email;
+    if (!email) return;
+    window.location.href = "mailto:" + email;
+  });
+}
+
+
+
+    // --------- Навигация по разделам
+    const navLinks = document.querySelectorAll(".nav-link");
+    const pages = document.querySelectorAll(".page");
+
+    navLinks.forEach((link) => {
+      link.addEventListener("click", () => {
+        const target = link.dataset.section;
+
+        navLinks.forEach((l) => l.classList.remove("active"));
+        pages.forEach((p) => p.classList.remove("visible"));
+
+        link.classList.add("active");
+        const page = document.getElementById(target);
+        if (page) page.classList.add("visible");
+
+        applySearch();
+      });
+    });
+
+
+        // --------- Превью-карточки на главной (кликаешь — переход в раздел)
+    const homePreviewCards = document.querySelectorAll(".home-preview-card");
+
+    homePreviewCards.forEach((card) => {
+      card.addEventListener("click", () => {
+        const targetSection = card.dataset.sectionTarget;
+        if (!targetSection) return;
+
+        // ищем соответствующую ссылку в навигации и "кликаем" её
+        const navLink = document.querySelector(
+          `.nav-link[data-section="${targetSection}"]`
+        );
+        if (navLink) {
+          navLink.click();
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }
+      });
+    });
+
+
+    // --------- Вкладки категорий в Shop
+    const shopTabs = document.querySelectorAll(".shop-tab");
+    const categoryBlocks = document.querySelectorAll("[data-category-block]");
+
+    shopTabs.forEach((tab) => {
+      tab.addEventListener("click", () => {
+        const category = tab.dataset.category;
+
+        shopTabs.forEach((t) => t.classList.remove("active"));
+        tab.classList.add("active");
+
+        categoryBlocks.forEach((block) => {
+          if (block.dataset.categoryBlock === category) {
+            block.classList.add("active");
+          } else {
+            block.classList.remove("active");
+          }
+        });
+
+        applySearch();
+      });
+    });
+
+
+
+    // --------- Конвертация валют (RUB — базовая)
+    const currencyRates = {
+      RUB: 1,
+      BYN: 0.043,
+      USD: 0.013,
+      EUR: 0.011
+    };
+
+    const currencySelect = document.getElementById("currency-select");
+
+    function formatPrice(value, currency) {
+      if (currency === "RUB" || currency === "BYN") {
+        return Math.round(value).toLocaleString("ru-RU");
+      } else {
+        return value.toFixed(2).toLocaleString("ru-RU");
+      }
+    }
+
+    function updatePrices() {
+      const currentCurrency = currencySelect.value;
+      const rate = currencyRates[currentCurrency] || 1;
+      const priceElements = document.querySelectorAll(".price-value");
+      priceElements.forEach((el) => {
+        const base = parseFloat(el.dataset.basePrice || "0");
+        const converted = base * rate;
+        el.textContent = formatPrice(converted, currentCurrency);
+        const currencyLabel = el
+          .closest(".product-price")
+          .querySelector(".price-currency");
+        if (currencyLabel) currencyLabel.textContent = " " + currentCurrency;
+      });
+
+      // обновляем цену в модалке, если она открыта
+      const openCard = window.__currentCardForModal;
+      if (openCard) {
+        const priceEl = openCard.querySelector(".product-price");
+        const modalPrice = document.getElementById("modal-price");
+        if (priceEl && modalPrice) {
+          modalPrice.textContent = priceEl.textContent.trim();
+        }
+      }
+    }
+
+    currencySelect.addEventListener("change", updatePrices);
+
+    // --------- Поиск по названию (в активном разделе)
+    const searchInput = document.getElementById("search-input");
+
+    function applySearch() {
+      const query = searchInput.value.trim().toLowerCase();
+      const activePage = document.querySelector(".page.visible");
+      if (!activePage) return;
+
+      const cards = activePage.querySelectorAll(".product-card");
+      if (!cards.length) return;
+
+      cards.forEach((card) => {
+        const name = (card.dataset.name || "").toString().toLowerCase();
+        if (!query || name.includes(query)) {
+          card.style.display = "";
+        } else {
+          card.style.display = "none";
+        }
+      });
+    }
+
+    searchInput.addEventListener("input", applySearch);
+
+    // --------- Модальное окно с галереей
+    const modalBackdrop = document.getElementById("product-modal-backdrop");
+    const modalTitle = document.getElementById("modal-title");
+    const modalTag = document.getElementById("modal-tag");
+    const modalPrice = document.getElementById("modal-price");
+    const modalDescription = document.getElementById("modal-description");
+    const modalExtraList = document.getElementById("modal-extra-list");
+    const modalCloseBtn = document.getElementById("modal-close-btn");
+
+    const modalMainImage = document.getElementById("modal-main-image");
+    const modalMainPlaceholder = document.getElementById(
+      "modal-main-placeholder"
+    );
+    const modalThumbs = document.getElementById("modal-thumbs");
+
+    let modalCurrentImages = [];
+    let modalCurrentIndex = 0;
+
+    function setActiveImage(index) {
+      if (!modalCurrentImages.length) return;
+      modalCurrentIndex = index;
+      const src = modalCurrentImages[index];
+      modalMainImage.src = src;
+      modalMainImage.style.display = "block";
+      modalMainPlaceholder.style.display = "none";
+
+      Array.from(modalThumbs.children).forEach((btn, i) => {
+        if (i === index) {
+          btn.classList.add("active");
+        } else {
+          btn.classList.remove("active");
+        }
+      });
+    }
+
+    function openModalForCard(card) {
+      window.__currentCardForModal = card;
+
+      const name = card.dataset.name || "";
+      const detail = card.dataset.detail || "";
+      const extra = card.dataset.extra || "";
+      const tagEl = card.querySelector(".product-tag");
+      const priceEl = card.querySelector(".product-price");
+
+      modalTitle.textContent = name;
+      modalTag.textContent = tagEl ? tagEl.textContent : "";
+      modalPrice.textContent = priceEl ? priceEl.textContent.trim() : "";
+      modalDescription.textContent = detail;
+
+      modalExtraList.innerHTML = "";
+      if (extra) {
+        const li = document.createElement("li");
+        li.textContent = extra;
+        modalExtraList.appendChild(li);
+      }
+
+      // Галерея
+      modalCurrentImages = [];
+      modalThumbs.innerHTML = "";
+      modalMainImage.src = "";
+      modalMainImage.style.display = "none";
+      modalMainPlaceholder.style.display = "flex";
+
+      const imagesData = card.dataset.images;
+      if (imagesData) {
+        try {
+          const arr = JSON.parse(imagesData);
+          if (Array.isArray(arr) && arr.length) {
+            modalCurrentImages = arr;
+          }
+        } catch (e) {
+          console.warn("Невозможно прочитать data-images:", e);
+        }
+      }
+
+            if (modalCurrentImages.length) {
+        modalCurrentImages.forEach((src, index) => {
+          const btn = document.createElement("button");
+          btn.className = "product-modal-thumb";
+          btn.type = "button";
+
+          const img = document.createElement("img");
+          img.src = src;
+          img.alt = name + " — " + (index + 1);
+          btn.appendChild(img);
+
+          btn.addEventListener("click", () => setActiveImage(index));
+
+          modalThumbs.appendChild(btn);
+        });
+
+        setActiveImage(0);
+      } else {
+        modalThumbs.innerHTML = "";
+        modalMainImage.style.display = "none";
+        modalMainPlaceholder.style.display = "flex";
+      }
+
+      // показываем модалку
+      modalBackdrop.classList.add("visible");
+      modalBackdrop.setAttribute("aria-hidden", "false");
+
+      // ❗ блокируем скролл страницы под модалкой
+      document.body.style.overflow = "hidden";
+    }
+
+
+
+    function closeModal() {
+  modalBackdrop.classList.remove("visible");
+  modalBackdrop.setAttribute("aria-hidden", "true");
+  window.__currentCardForModal = null;
+
+  // ❗ возвращаем обычный скролл страницы
+  document.body.style.overflow = "";
+}
+
+
+    const productCards = document.querySelectorAll(".product-card");
+    productCards.forEach((card) => {
+      card.addEventListener("click", () => openModalForCard(card));
+    });
+
+    modalCloseBtn.addEventListener("click", closeModal);
+    modalBackdrop.addEventListener("click", (e) => {
+      if (e.target === modalBackdrop) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeModal();
+      }
+    });
+
+    // --------- Год в футере и количество эксклюзивов
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    function updateExclusiveCount() {
+      const exclusiveBlock = document.getElementById("exclusivev");
+      const exclusiveCountSpan = document.getElementById("exclusive-count");
+      if (exclusiveBlock && exclusiveCountSpan) {
+        const items = exclusiveBlock.querySelectorAll(".product-card");
+        exclusiveCountSpan.textContent = items.length
+          .toString()
+          .padStart(2, "0");
+      }
+    }
+
+function updateExclusivePreview() {
+  // карточка-превью 1/1 на главном
+  const previewCard = document.querySelector(
+    '.home-preview-card[data-section-target="exclusivev"]'
+  );
+  if (!previewCard) return;
+
+  const previewImageDiv = previewCard.querySelector(".home-preview-image");
+  if (!previewImageDiv) return;
+
+  // секция 1/1
+  const exclusiveSection = document.getElementById("exclusivev");
+  if (!exclusiveSection) return;
+
+  const productCards = exclusiveSection.querySelectorAll(".product-card");
+  if (!productCards.length) return;
+
+  // берём ПЕРВУЮ карточку (раз новые добавляются сверху)
+  const lastCard = productCards[0];
+
+  let imageUrl = "";
+
+  // сначала пробуем прочитать первый путь из data-images
+  const imagesData = lastCard.dataset.images;
+  if (imagesData) {
+    try {
+      const arr = JSON.parse(imagesData);
+      if (Array.isArray(arr) && arr.length) {
+        imageUrl = arr[0];
+      }
+    } catch (e) {
+      console.warn("Невозможно прочитать data-images для превью:", e);
+    }
+  }
+
+  // если вдруг с data-images что-то не так — берём src из <img>
+  if (!imageUrl) {
+    const imgEl = lastCard.querySelector(".product-image-wrapper img");
+    if (imgEl && imgEl.src) {
+      imageUrl = imgEl.src;
+    }
+  }
+
+  // если в итоге есть что подставить — заменяем фон превью
+  if (imageUrl) {
+    previewImageDiv.style.backgroundImage = `url('${imageUrl}')`;
+  }
+}
+
+
+// Инициализация
+updatePrices();
+updateExclusiveCount();
+applySearch();
+updateExclusivePreview();
+
+
+
+
+// ====== ГЛИЧ БУКВ С РАДИУСОМ ВОКРУГ КУРСОРА ======
+// ОТКЛЮЧЕНО НА ТАЧ-УСТРОЙСТВАХ (телефоны / планшеты)
+
+const isTouchDevice =
+  window.matchMedia("(pointer: coarse)").matches ||
+  "ontouchstart" in window;
+
+if (!isTouchDevice) {
+  const GLITCH_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?%$#@";
+  let glitchSpans = [];
+
+  function makeLettersGlitchable(rootEl) {
+    const text = rootEl.textContent;
+    rootEl.textContent = "";
+
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+
+      if (ch === " " || ch === "\n") {
+        rootEl.appendChild(document.createTextNode(ch));
+        continue;
+      }
+
+      const span = document.createElement("span");
+      span.className = "glitch-char";
+      span.textContent = ch;
+      span.dataset.originalChar = ch;
+
+      rootEl.appendChild(span);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".glitch-hover").forEach((el) => {
+      makeLettersGlitchable(el);
+    });
+
+    glitchSpans = Array.from(document.querySelectorAll(".glitch-char"));
+  });
+
+  const GLITCH_RADIUS = 70;
+
+  document.addEventListener("mousemove", (e) => {
+    if (!glitchSpans.length) return;
+
+    glitchSpans.forEach((span) => {
+      const rect = span.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+
+      const dist = Math.hypot(e.clientX - cx, e.clientY - cy);
+
+      if (dist < GLITCH_RADIUS) {
+        if (!span.__glitchInterval) {
+          span.__glitchInterval = setInterval(() => {
+            const rand =
+              GLITCH_CHARS[Math.floor(Math.random() * GLITCH_CHARS.length)];
+            span.textContent = rand;
+          }, 45);
+        }
+      } else if (span.__glitchInterval) {
+        clearInterval(span.__glitchInterval);
+        span.__glitchInterval = null;
+        span.textContent = span.dataset.originalChar || "";
+      }
+    });
+  });
+}
+
+
+
+  </script>
+</body>
+</html>
