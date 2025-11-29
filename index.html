@@ -1474,6 +1474,26 @@ body::after {
   }
 }
 
+.home-preview-cta {
+  margin-top: 4px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  opacity: 0.6;
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.home-preview-cta::after {
+  content: "↗";
+  font-size: 11px;
+  transform: translateY(-1px);
+}
+
+.home-preview-card:hover .home-preview-cta {
+  opacity: 1;
+}
 
 
 
@@ -1613,18 +1633,21 @@ Not worn. Not welcomed. item-core.
     </div> -->
 
     <!-- preview 1/1 -->
-    <div class="home-preview-card" data-section-target="exclusivev">
-      <div class="home-preview-image"
-           style="background-image: url('images/hELIOSTICE01.jpg');"></div>
-      <div class="home-preview-meta">
-        <span class="home-preview-eyebrow glitch-hover">private wardr0be</span>
-        <div class="home-preview-title glitch-hover">1/1</div>
-        <div class="home-preview-sub glitch-hover">
-          Private Wardrobe_01! --item = “one-copy organism”.Available units = purchasable. no doubles, no re-runs, 
-        </div>
-      </div>
+<div class="home-preview-card" data-section-target="exclusivev" role="button" aria-label="open 1/1 wardrobe">
+  <div class="home-preview-image"
+       style="background-image: url('images/hELIOSTICE01.jpg');"></div>
+  <div class="home-preview-meta">
+    <span class="home-preview-eyebrow glitch-hover">private wardr0be</span>
+    <div class="home-preview-title glitch-hover">1/1 section</div>
+    <div class="home-preview-sub glitch-hover">
+      Private Wardrobe_01! --item = “one-copy organism”.Available units = purchasable. no doubles, no re-runs,
+    </div>
+    <div class="home-preview-cta glitch-hover">
+      enter 1/1 wardrobe
     </div>
   </div>
+</div>
+
 </section>
 
 
@@ -2506,7 +2529,7 @@ updateExclusivePreview();
 const isTouchDevice =
   window.matchMedia("(pointer: coarse)").matches ||
   "ontouchstart" in window;
-
+  
 if (!isTouchDevice) {
   const GLITCH_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!?%$#@";
   let glitchSpans = [];
